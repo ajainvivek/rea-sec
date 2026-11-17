@@ -78,6 +78,4 @@ tests/                    unittest suite and a sample phishing .eml
 
 ## Credit
 
-Inspired by REA-Video, the reverse-engineer-anything skill shared by [@rileybrown](https://x.com/rileybrown).
-
 Built by [@hackerlogs](https://x.com/hackerlogs). MIT licensed.
