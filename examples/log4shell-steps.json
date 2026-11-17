@@ -1,0 +1,9 @@
+{
+  "title": "Log4Shell (CVE-2021-44228) attack path",
+  "steps": [
+    {"technique": "T1190", "detail": "Attacker places a JNDI lookup string in any field the app logs (header, form field, username)", "status": "CONFIRMED", "source": "https://nvd.nist.gov/vuln/detail/CVE-2021-44228"},
+    {"technique": "T1203", "tactic": "Execution", "name": "Message lookup substitution", "detail": "log4j-core expands the lookup and JndiManager calls out to an attacker LDAP server", "status": "CONFIRMED", "source": "https://github.com/apache/logging-log4j2/commit/c77b3cb39312b83b053d23a2158b99ac7de44dd3"},
+    {"technique": "T1105", "detail": "Remote reference or serialized object is loaded into the JVM", "status": "CONFIRMED", "source": "https://logging.apache.org/security.html"},
+    {"technique": "T1486", "detail": "CISA KEV records known ransomware campaign use of this CVE", "status": "CONFIRMED", "source": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"}
+  ]
+}

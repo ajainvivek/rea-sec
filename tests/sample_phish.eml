@@ -1,0 +1,25 @@
+Return-Path: <bounce@mailer-x7.example.net>
+Received: from mailer-x7.example.net (mailer-x7.example.net [203.0.113.45])
+	by mx.example.com with ESMTP id abc123; Mon, 16 Nov 2026 09:12:01 +1100
+Authentication-Results: mx.example.com; spf=softfail smtp.mailfrom=mailer-x7.example.net; dkim=none; dmarc=fail header.from=micros0ft-support.example.org
+From: "Microsoft 365 Security" <alert@micros0ft-support.example.org>
+Reply-To: helpdesk-reset@freemail.example.com
+To: recipient@example.com
+Subject: Action required: your mailbox will be suspended in 24 hours
+Date: Mon, 16 Nov 2026 09:11:58 +1100
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b1"
+
+--b1
+Content-Type: text/plain; charset=utf-8
+
+Your password expires today. Verify now to keep access:
+https://login.microsoft-verify.example.org/auth?redirect=https%3A%2F%2Fcollect.example.net%2Fo365
+Or use https://bit.ly/3xExample
+
+--b1
+Content-Type: text/html; name="invoice.html"
+Content-Disposition: attachment; filename="invoice.html"
+
+<html><body>fake invoice</body></html>
+--b1--
