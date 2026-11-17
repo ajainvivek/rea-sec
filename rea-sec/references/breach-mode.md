@@ -11,7 +11,9 @@
    date), who said it, URL, label (CONFIRMED / REPORTED / INFERRED).
 3. **Entry point.** One of: stolen credentials, phishing, exploited public
    facing app (name the CVE), third party / supply chain (name the vendor),
-   insider, misconfiguration, unknown. If unknown, say unknown.
+   insider, misconfiguration, unknown. If unknown, say unknown. If the victim
+   says "a vulnerability" without naming it, write "unnamed vulnerability, CVE
+   not disclosed" and do not guess which CVE it was.
 4. **Kill chain.** Walk the ATT&CK tactics in order and fill only the ones the
    evidence supports:
    Initial Access, Execution, Persistence, Privilege Escalation, Defense
@@ -20,8 +22,13 @@
 5. **What was hit.** Data categories and record counts exactly as the source
    states them ("up to 2.6M member records"). Note what was explicitly NOT hit
    (for example "no card data") and cite it.
-6. **Third party angle.** If a vendor or SaaS was the entry point, list other
-   known customers only if they have disclosed publicly. Never guess.
+6. **Third party angle.** If a vendor or SaaS was the entry point, add a
+   Downstream disclosures table: customer, disclosure date, records, data
+   types, what was not hit, source. List a customer only if it has disclosed
+   publicly. Never guess, and never add up counts across companies as if they
+   were unique people (members can overlap); say "up to" and keep each figure
+   with its source. Check whether integration secrets (API keys, OAuth tokens,
+   webhooks) stored in the SaaS leaked: that is the path to the *next* victim.
 7. **Detection.** Translate each mapped technique into a log source and a
    Sigma draft or query. Focus on what a peer company could run today.
 8. **Tonight.** Three fixes for peers, not for the victim: rotate the tokens

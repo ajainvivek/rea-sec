@@ -23,6 +23,12 @@ BRANDS = ["microsoft", "office365", "outlook", "google", "apple", "paypal", "ama
           "linkedin", "netflix", "dhl", "fedex", "ups", "auspost", "mygov", "ato", "commbank", "westpac", "anz", "nab"]
 
 
+def brand_in(brand, text):
+    """True when brand appears as its own token (label, word or hyphen part), so 'ups' does not match 'groups'."""
+    return re.search(rf"(?<![a-z0-9]){re.escape(brand)}(?![a-z0-9])", text.lower()) is not None or (
+        len(brand) >= 6 and brand in text.lower())
+
+
 def defang(s):
     return s.replace("http", "hxxp", 1).replace(".", "[.]")
 
@@ -74,7 +80,7 @@ def analyse_url(u):
     if "@" in sp.netloc:
         flags.append("userinfo @ trick")
     for b in BRANDS:
-        if b in host and not org_domain(host).startswith(b + "."):
+        if brand_in(b, host) and not org_domain(host).startswith(b + "."):
             flags.append(f"brand '{b}' in non-brand domain")
     nested = []
     for k, vals in parse_qs(sp.query).items():
@@ -101,7 +107,7 @@ def analyse(raw_bytes):
     if frm[0] and "@" in frm[0] and domain_of(frm[0]) != fd:
         flags.append(f"Display name contains a different address: {frm[0]}")
     for b in BRANDS:
-        if b in (frm[0] or "").lower() and b not in fd:
+        if brand_in(b, frm[0] or "") and not org_domain(fd).startswith(b + "."):
             flags.append(f"Display name mentions '{b}' but sending domain is {fd}")
     auth = auth_results(msg)
     for mech in ("spf", "dkim", "dmarc"):

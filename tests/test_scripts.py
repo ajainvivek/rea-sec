@@ -43,6 +43,29 @@ class AttackMapTests(unittest.TestCase):
         self.assertIn("Warning", attack_map.md_table("t", steps))
 
 
+    def test_branching_and_escaping(self):
+        steps = attack_map.normalise([
+            {"technique": "T1190", "detail": "a"},
+            {"technique": "T1552", "detail": "b #1; [x]"},
+            {"technique": "T1078", "detail": "c", "after": [1], "tactic": "Persistence"},
+        ])
+        out = attack_map.mermaid(steps)
+        self.assertIn("S1 --> S2", out)
+        self.assertIn("S1 --> S3", out)
+        self.assertNotIn("S2 --> S3", out)
+        self.assertNotIn("#", out.split("classDef")[0])
+        self.assertIn("3. Persistence", out)
+
+    def test_after_must_point_backwards(self):
+        with self.assertRaises(ValueError):
+            attack_map.normalise([{"technique": "T1190", "detail": "a", "after": [2]}])
+
+    def test_karte_example_renders(self):
+        code, out = run(attack_map.main, [str(ROOT / "examples" / "plaid-karte-steps.json")])
+        self.assertEqual(code, 0)
+        self.assertIn("S2 --> S6", out)
+
+
 class PhishTests(unittest.TestCase):
     def setUp(self):
         self.r = phish_headers.analyse((ROOT / "tests" / "sample_phish.eml").read_bytes())
@@ -61,6 +84,12 @@ class PhishTests(unittest.TestCase):
         redirect = [u for u in urls if u["redirects_to"]]
         self.assertTrue(redirect and "collect[.]example[.]net" in redirect[0]["redirects_to"][0])
         self.assertTrue(any("URL shortener" in u["flags"] for u in urls))
+
+    def test_short_brand_no_false_positive(self):
+        r = phish_headers.analyse_url("https://groups.example.com/tomato?banana=1")
+        self.assertEqual(r["flags"], [])
+        r = phish_headers.analyse_url("https://ups-tracking.example.net/")
+        self.assertIn("brand 'ups' in non-brand domain", r["flags"])
 
     def test_ip_and_hash(self):
         self.assertIn("203.0.113.45", self.r["first_hop_ips"])

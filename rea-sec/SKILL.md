@@ -57,13 +57,22 @@ If a request breaks a guardrail, say which one, and offer the defensive version
    `python3 scripts/fetch_advisory.py CVE-XXXX-YYYY` (NVD, GitHub Advisory
    Database, CISA KEV). For breaches, find the primary notice first, then at
    most 3 reputable secondary sources. Record URL plus published date for each.
+   **Non-English sources** (common for APAC breaches): read the original, quote
+   the original wording next to every number or key claim (for example
+   `79,249件`), give your English translation, and never round or "clean up"
+   a figure. Translation services may block automated use; translate yourself.
 2. **Timeline.** Build a dated timeline in ISO dates (YYYY-MM-DD). Distinguish
    *event date* (when it happened) from *disclosure date* (when it was said).
+   Keep times in the source's own zone and label it (`08:59 JST`).
 3. **Reverse engineer.** Run the mode reference. Map each step to MITRE ATT&CK
    (Enterprise) technique IDs. Only map what the evidence supports.
 4. **Attack path.** Write the steps to a small JSON file and run
    `python3 scripts/attack_map.py steps.json` to emit an ATT&CK tagged table and
-   a mermaid diagram.
+   a mermaid diagram. `status` is the evidence for the *event*; the technique
+   mapping is your judgement. Set `tactic` explicitly when a technique spans
+   several tactics (T1078, T1550), and use `"after": [n]` when steps branch
+   instead of following each other. Risks the victim warns about but has not
+   confirmed go in as `INFERRED` and say "Risk:" in the detail.
 5. **Detect.** Draft 1 to 3 Sigma rules or hunting queries (see
    [references/sigma-template.md](references/sigma-template.md)). Mark them
    `status: experimental` and state what log source they need.
@@ -76,7 +85,7 @@ If a request breaks a guardrail, say which one, and offer the defensive version
 ```
 # <Target>: <one line on what happened>
 
-**Mode:** Breach | Patch-diff | Phish   **Analysed:** <date>   **Status:** Patched | Mitigated | Ongoing
+**Mode:** Breach | Patch-diff | Phish   **Analysed:** <date>   **Status:** Patched | Contained | Mitigated | Ongoing
 
 ## TL;DR
 2 to 3 sentences.
@@ -89,7 +98,8 @@ If a request breaks a guardrail, say which one, and offer the defensive version
 <attack_map.py output>
 
 ## Root cause            (Patch-diff mode: CWE, vulnerable code path, how the fix closes it)
-## What was hit          (data types, counts, as stated by the source)
+## What was hit          (data types, counts, as stated by the source; include what was NOT hit)
+## Downstream disclosures (supply chain / SaaS incidents: one row per customer that has disclosed)
 ## Confirmed vs unconfirmed
 ## Am I affected?        (version check, config check, log check)
 ## Detection
@@ -102,7 +112,13 @@ If a request breaks a guardrail, say which one, and offer the defensive version
 
 ## Unknowns
 ## Sources
+
+## Operator Ticket       (optional, see references/operator-ticket.md)
 ```
+
+Skip a section only when it does not apply to the mode (for example Root cause
+in Breach mode when the vulnerability is undisclosed), and say so in one line
+rather than deleting the heading.
 
 Writing style: plain English, short sentences, no em dashes, numbers with
 units, dates in ISO format, every claim cited.

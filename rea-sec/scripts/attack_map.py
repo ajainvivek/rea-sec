@@ -4,7 +4,10 @@
 Input JSON: a list of steps, or {"title": ..., "steps": [...]}. Each step:
   {"tactic": "Initial Access", "technique": "T1190", "name": "Exploit Public-Facing Application",
    "detail": "JNDI lookup in logged header", "status": "CONFIRMED", "source": "https://..."}
-Only "technique" and "detail" are required. Usage:
+Only "technique" and "detail" are required. Optional "after": [step numbers] draws
+branches (for example two actions that both follow step 2); without it the path is linear.
+Set "tactic" yourself when a technique spans several tactics (T1078, T1550, T1133).
+"status" describes the evidence for the event; the ATT&CK mapping itself is analyst judgement. Usage:
     python3 attack_map.py steps.json [--format md|mermaid|both]
 """
 import argparse
@@ -39,6 +42,11 @@ KNOWN = {
     "T1528": ("Steal Application Access Token", "Credential Access"),
     "T1621": ("Multi-Factor Authentication Request Generation", "Credential Access"),
     "T1003": ("OS Credential Dumping", "Credential Access"),
+    "T1005": ("Data from Local System", "Collection"),
+    "T1078.004": ("Cloud Accounts", "Initial Access"),
+    "T1552.001": ("Credentials In Files", "Credential Access"),
+    "T1550.001": ("Application Access Token", "Lateral Movement"),
+    "T1213.006": ("Databases", "Collection"),
     "T1082": ("System Information Discovery", "Discovery"),
     "T1021": ("Remote Services", "Lateral Movement"),
     "T1530": ("Data from Cloud Storage", "Collection"),
@@ -72,7 +80,11 @@ def normalise(steps):
             raise ValueError(f"step {i}: status must be one of {sorted(STATUSES)}")
         if not s.get("detail"):
             raise ValueError(f"step {i}: 'detail' is required")
-        out.append({"n": i, "technique": tid, "name": s.get("name") or name or "unknown technique",
+        after = s.get("after")
+        if after is not None:
+            if not isinstance(after, list) or not all(isinstance(a, int) and 1 <= a < i for a in after):
+                raise ValueError(f"step {i}: 'after' must list earlier step numbers, e.g. [2]")
+        out.append({"n": i, "after": after, "technique": tid, "name": s.get("name") or name or "unknown technique",
                     "tactic": s.get("tactic") or tactic or "Unmapped", "detail": s["detail"],
                     "status": status, "source": s.get("source", "")})
     return out
@@ -96,7 +108,8 @@ def md_table(title, steps):
 
 
 def esc(text):
-    return re.sub(r'["<>{}\[\]|]', "", text)
+    # Mermaid treats these as syntax inside node labels; '#' and ';' start entity codes.
+    return re.sub(r'["<>{}\[\]|#;`]', "", text)
 
 
 def short(text, limit=60):
@@ -111,8 +124,14 @@ def mermaid(steps):
         style = {"CONFIRMED": ":::confirmed", "REPORTED": ":::reported", "INFERRED": ":::inferred"}[s["status"]]
         lines.append(f'  S{s["n"]}["{s["n"]}. {esc(s["tactic"])}<br/>{s["technique"]} {esc(s["name"])}<br/>'
                      f'<i>{short(esc(s["detail"]))}</i>"]{style}')
-    for a, b in zip(steps, steps[1:]):
-        lines.append(f'  S{a["n"]} --> S{b["n"]}')
+    branching = any(s["after"] is not None for s in steps)
+    for prev, s in zip([None] + steps, steps):
+        if branching and s["after"] is not None:
+            parents = s["after"]
+        else:
+            parents = [prev["n"]] if prev else []
+        for p in parents:
+            lines.append(f'  S{p} --> S{s["n"]}')
     lines += ["  classDef confirmed fill:#d4f7d4,stroke:#1a7f37",
               "  classDef reported fill:#fff4c2,stroke:#9a6700",
               "  classDef inferred fill:#eeeeee,stroke:#666,stroke-dasharray: 4 3", "```"]

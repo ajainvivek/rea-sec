@@ -13,7 +13,9 @@ REA-Sec is an [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) 
 | **Phish/lure** | An .eml, headers, screenshot or URL you received | Spoofing verdict, SPF/DKIM/DMARC, redirect chain from passive lookups, defanged IOCs, red flags for users |
 | **Operator Ticket** | Any of the above | A blunt, shareable post: hook, "What is on the record:", "Tonight:" with 3 fixes, closer |
 
-See a full sample: [examples/log4shell-patch-diff.md](examples/log4shell-patch-diff.md) (CVE-2021-44228, patched since 2021).
+Full samples:
+- Breach mode: [examples/plaid-karte-breach.md](examples/plaid-karte-breach.md) (PLAID KARTE SaaS breach, Japan, Nov 2026, from Japanese primary sources)
+- Patch-diff mode: [examples/log4shell-patch-diff.md](examples/log4shell-patch-diff.md) (CVE-2021-44228, patched since 2021)
 
 ## Install
 
@@ -49,7 +51,7 @@ Python 3.9+, standard library only.
 | Script | What it does |
 |---|---|
 | `scripts/fetch_advisory.py CVE-ID [--format md\|json]` | Pulls NVD, GitHub Advisory Database and CISA KEV data: CVSS, CWE, affected and patched versions, fix links. Skips exploit archive links. |
-| `scripts/attack_map.py steps.json` | Turns an attack path into an ATT&CK tagged Markdown table and a mermaid diagram, coloured by CONFIRMED / REPORTED / INFERRED. |
+| `scripts/attack_map.py steps.json` | Turns an attack path into an ATT&CK tagged Markdown table and a mermaid diagram, coloured by CONFIRMED / REPORTED / INFERRED. Supports branching paths with `"after": [n]`. |
 | `scripts/phish_headers.py message.eml [--json]` | Offline header and body triage: sender mismatches, auth results, Received chain, lookalike brands, defanged URLs, attachment hashes. Makes no network calls. |
 
 Run the tests: `python3 -m unittest discover tests` (the advisory test needs internet; set `REA_SEC_OFFLINE=1` to skip it).
@@ -72,7 +74,7 @@ rea-sec/                  <- the skill folder you copy
   SKILL.md
   references/             breach, patch-diff, phish, operator ticket, sigma, guardrails
   scripts/                fetch_advisory.py, attack_map.py, phish_headers.py
-examples/                 sample Log4Shell report and attack path JSON
+examples/                 sample KARTE breach and Log4Shell reports, attack path JSON
 tests/                    unittest suite and a sample phishing .eml
 ```
 

@@ -1,0 +1,53 @@
+{
+  "title": "PLAID KARTE breach (Nov 2026) attack path",
+  "steps": [
+    {
+      "technique": "T1190",
+      "detail": "Third party exploited a vulnerability in PLAID servers early on 13 Nov JST. CVE not disclosed",
+      "status": "CONFIRMED",
+      "source": "https://plaid.co.jp/news/20261116/"
+    },
+    {
+      "technique": "T1552",
+      "detail": "Stole connection credentials for systems and databases",
+      "status": "CONFIRMED",
+      "source": "https://plaid.co.jp/news/20261116/"
+    },
+    {
+      "technique": "T1213.006",
+      "detail": "Read data out of databases, including customer data imported via the linking table feature",
+      "status": "CONFIRMED",
+      "source": "https://plaid.co.jp/news/20261116/"
+    },
+    {
+      "technique": "T1078",
+      "detail": "Used stolen credentials to take over a PLAID account and access the admin console",
+      "status": "CONFIRMED",
+      "source": "https://plaid.co.jp/news/20261116/",
+      "tactic": "Persistence",
+      "after": [
+        2
+      ]
+    },
+    {
+      "technique": "T1041",
+      "tactic": "Exfiltration",
+      "name": "Exfiltration (channel not disclosed)",
+      "detail": "Data was read out to an external location. Method not disclosed",
+      "status": "CONFIRMED",
+      "source": "https://plaid.co.jp/news/20261116/",
+      "after": [
+        3
+      ]
+    },
+    {
+      "technique": "T1550.001",
+      "detail": "Risk: leaked integration secret keys and access tokens could be used against connected services. No abuse confirmed",
+      "status": "INFERRED",
+      "source": "https://plaid.co.jp/news/20261116/",
+      "after": [
+        2
+      ]
+    }
+  ]
+}

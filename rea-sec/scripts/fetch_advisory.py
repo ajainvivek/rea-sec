@@ -113,7 +113,7 @@ def to_markdown(r):
     if r.get("ghsa"):
         lines += ["## GitHub Advisory Database", "| GHSA | Package | Vulnerable | First patched |", "|---|---|---|---|"]
         for a in r["ghsa"]:
-            for p in a["packages"] or [{}]:
+            for p in sorted(a["packages"] or [{}], key=lambda x: (str(x.get("ecosystem")), str(x.get("name")), str(x.get("patched")))):
                 lines.append(f"| [{a['ghsa_id']}]({a['url']}) | {p.get('ecosystem')}:{p.get('name')} | "
                              f"{p.get('vulnerable')} | {p.get('patched')} |")
         lines.append("")
